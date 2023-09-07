@@ -13,7 +13,7 @@ jobs:
       - name: Check if PR is merged and has deploy label
         id: check-conditions
         run: |
-          if [[ ${{ github.event_name }} == 'pull_request' && ${{ github.event.pull_request.merged }} == 'true' && $(jq -r '.labels[].name' <<< "${{ github.event.pull_request.labels }}" | grep -q 'deploy') ]]; then
+          if [[ "${{ github.event.pull_request.merged }}" == "true" && $(jq -r '.labels[].name' <<< "${{ github.event.pull_request.labels }}" | grep -q 'deploy') ]]; then
             echo "::set-output name=create_pr::true"
           else
             echo "::set-output name=create_pr::false"
@@ -30,4 +30,3 @@ jobs:
           git commit -m "Merge main into deploy branch"
           git push origin deploy-branch
           gh pr create --base main --head deploy-branch --title "Merge develop into main" --body "This pull request was automatically created when a PR was merged into develop with the 'deploy' label."
-
