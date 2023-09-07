@@ -22,9 +22,12 @@ jobs:
       - name: Create PR to Master
         if: steps.check-conditions.outputs.create_pr == 'true'
         run: |
-          git checkout master
-          git pull origin master
-          git checkout -b update-master
-          git merge develop --no-ff -m "Merge develop into master"
-          git push origin update-master
-          gh pr create --base master --head update-master --title "Merge develop into master" --body "This pull request was automatically created when a PR was merged into develop with the 'deploy' label."
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git fetch origin master:master
+          git checkout -b deploy-branch
+          git merge master --no-commit --no-ff
+          git commit -m "Merge master into deploy branch"
+          git push origin deploy-branch
+          gh pr create --base master --head deploy-branch --title "Merge develop into master" --body "This pull request was automatically created when a PR was merged into develop with the 'deploy' label."
+
