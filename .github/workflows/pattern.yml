@@ -11,6 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Checkout repository with automation steps
+        uses: actions/checkout@v3
+        with:
+          repository: "yashkumarverma-fampay/temp"
+          token: ${{ secrets.GITHUB_TOKEN }} # Ensure you have the correct access rights
+
       - name: Get label
         id: labelcheck
         run: |
@@ -26,6 +32,8 @@ jobs:
       - name: Use Extracted Value
         if: steps.labelcheck.outputs.extracted != ''
         run: |
-          echo "Extracted value: ${{ steps.labelcheck.outputs.extracted }}"
+          echo "Prased Value: ${{ steps.labelcheck.outputs.extracted }}"
+          chmod +x ./test.sh
+          ./test.sh ${{ steps.labelcheck.outputs.extracted }}
           # You can now use the extracted value to perform further actions
           # Example: Pass the value to another script or command
