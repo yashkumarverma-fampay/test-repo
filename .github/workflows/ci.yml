@@ -1,3 +1,4 @@
+
 name: Run Tests on Label
 
 on:
@@ -19,5 +20,3 @@ jobs:
         run: |
           chmod +x ./test.sh
           ./test.sh
-
-      # The step will fail automatically if the script exits with a non-zero code
