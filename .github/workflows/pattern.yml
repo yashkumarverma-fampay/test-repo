@@ -1,0 +1,31 @@
+name: Test on Specific Labels
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  check-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get label
+        id: labelcheck
+        run: |
+          LABEL_REGEX="attack-(r[0-9]+)"
+          for label in $(jq -r '.pull_request.labels[].name' $GITHUB_EVENT_PATH); do
+            if [[ $label =~ $LABEL_REGEX ]]; then
+              echo "Match found: $label"
+              echo "::set-output name=extracted::${BASH_REMATCH[1]}"
+              break
+            fi
+          done
+
+      - name: Use Extracted Value
+        if: steps.labelcheck.outputs.extracted != ''
+        run: |
+          echo "Extracted value: ${{ steps.labelcheck.outputs.extracted }}"
+          # You can now use the extracted value to perform further actions
+          # Example: Pass the value to another script or command
