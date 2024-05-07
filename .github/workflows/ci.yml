@@ -1,32 +1,23 @@
-name: Create PR to main on Deploy Label
+name: Run Tests on Label
 
 on:
   pull_request:
-    types:
-      - closed
+    types: [labeled]
 
 jobs:
-  create-pr:
+  test:
     runs-on: ubuntu-latest
-
+    if: contains(github.event.pull_request.labels.*.name, 'attack')
     steps:
-      - name: Check if PR is merged and has deploy label
-        id: check-conditions
-        run: |
-          if [[ "${{ github.event.pull_request.merged }}" == "true" && $(jq -r '.labels[].name' <<< "${{ github.event.pull_request.labels }}" | grep -q 'deploy') ]]; then
-            echo "::set-output name=create_pr::true"
-          else
-            echo "::set-output name=create_pr::false"
-          fi
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'yashkumarverma-fampay/temp'
+          token: ${{ secrets.GITHUB_TOKEN }}  # Ensure you have the correct access rights
 
-      - name: Create PR to main
-        if: steps.check-conditions.outputs.create_pr == 'true'
+      - name: Run test.sh
         run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git fetch origin main:main
-          git checkout -b deploy-branch
-          git merge main --no-commit --no-ff
-          git commit -m "Merge main into deploy branch"
-          git push origin deploy-branch
-          gh pr create --base main --head deploy-branch --title "Merge develop into main" --body "This pull request was automatically created when a PR was merged into develop with the 'deploy' label."
+          chmod +x ./test.sh
+          ./test.sh
+
+      # The step will fail automatically if the script exits with a non-zero code
